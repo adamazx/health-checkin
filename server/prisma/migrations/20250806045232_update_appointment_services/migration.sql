@@ -1,0 +1,28 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `serviceId` on the `appointment` table. All the data in the column will be lost.
+
+*/
+-- DropForeignKey
+ALTER TABLE `appointment` DROP FOREIGN KEY `Appointment_serviceId_fkey`;
+
+-- DropIndex
+DROP INDEX `Appointment_serviceId_fkey` ON `appointment`;
+
+-- AlterTable
+ALTER TABLE `appointment` DROP COLUMN `serviceId`;
+
+-- CreateTable
+CREATE TABLE `AppointmentService` (
+    `appointmentId` INTEGER NOT NULL,
+    `serviceId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`appointmentId`, `serviceId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `AppointmentService` ADD CONSTRAINT `AppointmentService_appointmentId_fkey` FOREIGN KEY (`appointmentId`) REFERENCES `Appointment`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `AppointmentService` ADD CONSTRAINT `AppointmentService_serviceId_fkey` FOREIGN KEY (`serviceId`) REFERENCES `Service`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

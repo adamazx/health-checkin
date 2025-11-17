@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  UNSPECIFIED
+  MALE
+  FEMALE
+}
+
+enum RelationshipStatus {
+  SINGLE
+  IN_RELATIONSHIP
+  MARRIED
+  DIVORCED
+}
+
+enum PriceType {
+  FREE
+  PAID
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+}
+
+model User {
+  id           Int                @id @default(autoincrement())
+  username     String             @unique
+  email        String             @unique
+  password     String
+  firstName    String
+  lastName     String
+  gender       Gender // enum Gender
+  birthDate    DateTime
+  phone        String             @db.Char(10)
+  relationship RelationshipStatus // enum RelationshipStatus
+  occupation   String? 
+
+  appointments  Appointment[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  PreScreening  PreScreening[]
+}
+
+model Admin {
+  id        Int     @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String  @unique
+  username  String  @unique
+  password  String
+  phone     String  @db.Char(10)
+  address   String?
+
+  services  Service[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Service {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  priceType PriceType
+  price     Float?
+
+  duration Int?
+
+  adminId Int
+  admin   Admin @relation(fields: [adminId], references: [id])
+  
+  services     AppointmentService[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  clinicId      Int?
+}
+
+model Appointment {
+  id              Int                @id @default(autoincrement())
+  userId          Int
+  appointmentDate DateTime?
+  registerAt      DateTime           @default(now())
+  status          RegistrationStatus @default(PENDING)
+
+  user         User          @relation(fields: [userId], references: [id])
+  appointments AppointmentService[]
+  healthStatus HealthStatus?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AppointmentService {
+  appointmentId Int
+  serviceId     Int
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+  service     Service     @relation(fields: [serviceId], references: [id])
+
+  @@id([appointmentId, serviceId])
+}
+
+model PreScreening {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  answers   Json
+  score     Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model HealthStatus {
+  id            Int         @id @default(autoincrement())
+  appointmentId Int         @unique
+  result        String 
+  comment       String?
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  updatedAt     DateTime    @updatedAt
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  message    String
+  notifyDate DateTime
+  isRead     Boolean  @default(false)
+
+  sentAt     DateTime?
+
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  
+  @@index([notifyDate, sentAt])
+}
+

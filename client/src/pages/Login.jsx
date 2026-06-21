@@ -33,7 +33,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-blue-50 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <div className="w-full max-w-4xl bg-white shadow-2xl rounded-3xl grid grid-cols-1 md:grid-cols-2 overflow-hidden">
         
         {/* Left - Form */}
